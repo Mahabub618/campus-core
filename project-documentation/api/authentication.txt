@@ -1,0 +1,6 @@
+POST   /auth/login              # User login
+POST   /auth/refresh-token      # Refresh JWT token
+POST   /auth/logout             # User logout
+POST   /auth/forgot-password    # Password reset request
+POST   /auth/reset-password     # Password reset
+POST   /auth/change-password    # Change password (authenticated)

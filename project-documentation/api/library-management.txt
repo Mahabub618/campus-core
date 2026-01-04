@@ -1,0 +1,26 @@
+# Book Management
+GET    /library/books             # List all books (with search/filter)
+POST   /library/books             # Add new book
+GET    /library/books/:id         # Get book details
+PUT    /library/books/:id         # Update book
+DELETE /library/books/:id         # Delete book
+GET    /library/books/available   # List available books
+
+# Book Categories
+GET    /library/categories        # List categories
+POST   /library/categories        # Create category
+PUT    /library/categories/:id    # Update category
+DELETE /library/categories/:id    # Delete category
+
+# Borrowing
+POST   /library/borrow            # Borrow a book
+POST   /library/return/:borrowId  # Return a book
+GET    /library/borrowed          # Get currently borrowed books (by user)
+GET    /library/borrowed/:userId  # Get borrowed books for specific user
+GET    /library/overdue           # List overdue books
+
+# Fine Management
+GET    /library/fines             # List all fines
+GET    /library/fines/:userId     # Get fines for user
+POST   /library/fines/:id/pay     # Mark fine as paid
+

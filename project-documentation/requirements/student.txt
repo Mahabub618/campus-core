@@ -1,0 +1,32 @@
+Features:
+- Profile viewing & editing (limited)
+- View personal timetable
+- Attendance tracking (own records)
+- Assignment list & submission
+- Exam schedule viewing
+- Result viewing (own results)
+- Fee status check & history
+- Library access (borrow/return books)
+- Notice viewing
+- Course materials access & download
+- Event calendar viewing
+- Leave application
+- Message teachers
+- Dashboard with upcoming events, assignments, etc.
+
+Permissions:
+- PROFILE_VIEW_OWN
+- PROFILE_UPDATE_OWN
+- TIMETABLE_VIEW
+- ATTENDANCE_VIEW_OWN
+- ASSIGNMENT_VIEW
+- ASSIGNMENT_SUBMIT
+- RESULT_VIEW_OWN
+- FEE_VIEW_OWN
+- LIBRARY_BORROW
+- LIBRARY_VIEW
+- NOTICE_VIEW
+- MATERIAL_DOWNLOAD
+- EVENT_VIEW
+- LEAVE_APPLY
+- MESSAGE_SEND

@@ -1,0 +1,6 @@
+GET    /reports/academic-performance
+GET    /reports/attendance-summary
+GET    /reports/fee-collection
+GET    /reports/teacher-performance
+GET    /reports/student-progress
+GET    /reports/financial-summary

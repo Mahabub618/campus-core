@@ -1,0 +1,27 @@
+Features:
+- View linked children profiles
+- Switch between multiple children (if applicable)
+- Child attendance tracking
+- Progress report viewing
+- Result viewing for children
+- Fee payment & history
+- Fee receipts download
+- Communication with teachers (messaging)
+- Leave application for child
+- Notice viewing
+- Event calendar & notifications
+- Meeting scheduling with teachers
+- Dashboard with children overview
+
+Permissions:
+- STUDENT_PROGRESS_VIEW (linked children only)
+- ATTENDANCE_VIEW_CHILD
+- RESULT_VIEW_CHILD
+- FEE_PAY
+- FEE_VIEW_CHILD
+- TEACHER_COMMUNICATE
+- MESSAGE_SEND
+- LEAVE_APPLY_CHILD
+- NOTICE_VIEW
+- EVENT_VIEW
+- MEETING_SCHEDULE

@@ -1,0 +1,18 @@
+# Fee Management
+GET    /fee/structures     # List fee structures
+POST   /fee/structures    # Create fee structure
+GET    /fee/students/:studentId  # Student fee details
+POST   /fee/payments      # Record payment
+GET    /fee/payments/:id  # Get payment receipt
+GET    /fee/reports       # Generate fee reports
+
+# Expense Management
+GET    /expenses          # List expenses
+POST   /expenses         # Create expense
+PUT    /expenses/:id     # Update expense
+GET    /expenses/reports # Expense reports
+
+# Salary Management
+GET    /salaries          # List salaries
+POST   /salaries         # Process salary
+GET    /salaries/employee/:employeeId  # Employee salary history

@@ -1,0 +1,70 @@
+-- Events
+CREATE TABLE events (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    event_type VARCHAR(50), -- 'ACADEMIC', 'SPORTS', 'CULTURAL', 'MEETING', 'EXAM', 'OTHER'
+    start_datetime TIMESTAMP NOT NULL,
+    end_datetime TIMESTAMP NOT NULL,
+    location VARCHAR(255),
+    is_all_day BOOLEAN DEFAULT false,
+    target_audience VARCHAR(50)[], -- ['TEACHERS', 'STUDENTS', 'PARENTS', 'ALL']
+    target_classes UUID[], -- Specific classes if applicable
+    organizer_id UUID REFERENCES users(id),
+    attachment_urls VARCHAR(500)[],
+    is_mandatory BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Event Participants (for tracking attendance/RSVP)
+CREATE TABLE event_participants (
+    id UUID PRIMARY KEY,
+    event_id UUID REFERENCES events(id),
+    user_id UUID REFERENCES users(id),
+    status VARCHAR(20) DEFAULT 'INVITED', -- 'INVITED', 'CONFIRMED', 'DECLINED', 'ATTENDED'
+    responded_at TIMESTAMP,
+    attended_at TIMESTAMP,
+    created_at TIMESTAMP,
+    UNIQUE(event_id, user_id)
+);
+
+-- Holidays
+CREATE TABLE holidays (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    name VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    description TEXT,
+    holiday_type VARCHAR(50), -- 'NATIONAL', 'RELIGIOUS', 'SCHOOL', 'OPTIONAL'
+    is_recurring BOOLEAN DEFAULT false, -- For annual holidays
+    academic_year VARCHAR(20),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    UNIQUE(institution_id, date, name)
+);
+
+-- Academic Calendar (term dates, exam schedules, etc.)
+CREATE TABLE academic_calendar (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    academic_year VARCHAR(20),
+    event_type VARCHAR(50), -- 'TERM_START', 'TERM_END', 'EXAM_START', 'EXAM_END', 'RESULT_PUBLISH'
+    title VARCHAR(255),
+    start_date DATE NOT NULL,
+    end_date DATE,
+    description TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX idx_events_institution ON events(institution_id);
+CREATE INDEX idx_events_dates ON events(start_datetime, end_datetime);
+CREATE INDEX idx_events_type ON events(event_type);
+CREATE INDEX idx_holidays_institution_date ON holidays(institution_id, date);
+CREATE INDEX idx_academic_calendar_year ON academic_calendar(institution_id, academic_year);
+

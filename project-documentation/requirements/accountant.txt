@@ -1,0 +1,28 @@
+Features:
+- Fee collection & receipts generation
+- View all student fee records
+- Due payment tracking & reminders
+- Expense management (create, update, view)
+- Salary processing for staff
+- Financial reports generation
+- Invoice generation
+- Bank reconciliation tracking
+- Scholarship management
+- Discount management & application
+- Financial dashboard with analytics
+- Export financial data (CSV/Excel)
+
+Permissions:
+- FEE_COLLECT
+- FEE_VIEW_ALL
+- FEE_STRUCTURE_VIEW
+- EXPENSE_MANAGE
+- EXPENSE_CREATE
+- EXPENSE_VIEW
+- SALARY_PROCESS
+- SALARY_VIEW
+- FINANCIAL_REPORT_GENERATE
+- INVOICE_GENERATE
+- SCHOLARSHIP_MANAGE
+- DISCOUNT_APPLY
+- FINANCIAL_EXPORT

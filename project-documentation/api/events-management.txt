@@ -1,0 +1,18 @@
+# Events
+GET    /events                    # List events (with date filter)
+POST   /events                    # Create event
+GET    /events/:id                # Get event details
+PUT    /events/:id                # Update event
+DELETE /events/:id                # Delete event
+GET    /events/upcoming           # List upcoming events
+
+# Calendar
+GET    /calendar                  # Get calendar entries (events + timetable)
+GET    /calendar/month/:year/:month  # Get month view
+
+# Holidays
+GET    /holidays                  # List holidays
+POST   /holidays                  # Create holiday
+PUT    /holidays/:id              # Update holiday
+DELETE /holidays/:id              # Delete holiday
+

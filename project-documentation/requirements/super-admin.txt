@@ -1,0 +1,25 @@
+Features:
+- Multi-institution management (SaaS)
+- Create/Update/Delete institutions
+- Assign/Revoke Admin roles to institutions
+- System-wide monitoring & analytics
+- Audit logs viewing across all institutions
+- Backup & restore management
+- API key management
+- Subscription & billing management
+- System configuration
+- View all users across institutions
+- Global announcements
+- System health dashboard
+
+Permissions:
+- FULL_SYSTEM_ACCESS
+- INSTITUTION_CREATE
+- INSTITUTION_UPDATE
+- INSTITUTION_DELETE
+- USER_VIEW_ALL
+- USER_DELETE_ANY
+- CONFIG_UPDATE
+- AUDIT_VIEW_ALL
+- BACKUP_MANAGE
+- SUBSCRIPTION_MANAGE

@@ -1,0 +1,30 @@
+CREATE TABLE notices (
+    id UUID PRIMARY KEY,
+    title VARCHAR(255),
+    content TEXT,
+    priority VARCHAR(20), -- 'HIGH', 'MEDIUM', 'LOW'
+    target_audience VARCHAR(50)[], -- ['TEACHERS', 'STUDENTS', 'PARENTS']
+    published_by UUID REFERENCES users(id),
+    published_at TIMESTAMP,
+    expiry_date DATE,
+    attachment_urls VARCHAR(500)[]
+);
+
+CREATE TABLE messages (
+    id UUID PRIMARY KEY,
+    sender_id UUID REFERENCES users(id),
+    receiver_id UUID REFERENCES users(id),
+    message TEXT,
+    sent_at TIMESTAMP,
+    read_at TIMESTAMP,
+    message_type VARCHAR(20) -- 'DIRECT', 'BROADCAST'
+);
+
+CREATE TABLE announcements (
+    id UUID PRIMARY KEY,
+    title VARCHAR(255),
+    content TEXT,
+    announced_by UUID REFERENCES users(id),
+    announcement_date DATE,
+    is_active BOOLEAN DEFAULT true
+);

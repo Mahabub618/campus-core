@@ -1,0 +1,239 @@
+# API Error Codes Documentation
+
+All API error responses follow this structure:
+
+```json
+{
+  "success": false,
+  "error": "Human-readable error message",
+  "code": "ERROR_CODE",
+  "details": {
+    "field_name": "Field-specific error message"
+  }
+}
+```
+
+## Error Code Categories
+
+### Authentication Errors (AUTH_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| AUTH_001 | 401 | Invalid credentials |
+| AUTH_002 | 401 | Token expired |
+| AUTH_003 | 401 | Token invalid |
+| AUTH_004 | 401 | Token missing |
+| AUTH_005 | 401 | Refresh token expired |
+| AUTH_006 | 401 | Refresh token invalid |
+| AUTH_007 | 403 | Account disabled |
+| AUTH_008 | 403 | Account locked |
+| AUTH_009 | 400 | Password requirements not met |
+| AUTH_010 | 400 | Invalid reset token |
+| AUTH_011 | 400 | Reset token expired |
+| AUTH_012 | 429 | Too many login attempts |
+
+### Authorization Errors (AUTHZ_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| AUTHZ_001 | 403 | Insufficient permissions |
+| AUTHZ_002 | 403 | Role not allowed |
+| AUTHZ_003 | 403 | Resource access denied |
+| AUTHZ_004 | 403 | Action not permitted for role |
+| AUTHZ_005 | 403 | Cross-tenant access denied |
+
+### Validation Errors (VAL_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| VAL_001 | 400 | Required field missing |
+| VAL_002 | 400 | Invalid field format |
+| VAL_003 | 400 | Field value out of range |
+| VAL_004 | 400 | Invalid date format |
+| VAL_005 | 400 | Invalid email format |
+| VAL_006 | 400 | Invalid phone format |
+| VAL_007 | 400 | Field too long |
+| VAL_008 | 400 | Field too short |
+| VAL_009 | 400 | Invalid UUID format |
+| VAL_010 | 400 | Invalid enum value |
+| VAL_011 | 422 | Unprocessable entity |
+
+### Resource Errors (RES_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| RES_001 | 404 | Resource not found |
+| RES_002 | 409 | Resource already exists |
+| RES_003 | 409 | Duplicate entry |
+| RES_004 | 400 | Resource in use (cannot delete) |
+| RES_005 | 400 | Resource limit exceeded |
+| RES_006 | 400 | Invalid resource state |
+
+### User Management Errors (USER_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| USER_001 | 404 | User not found |
+| USER_002 | 409 | Email already registered |
+| USER_003 | 409 | Phone already registered |
+| USER_004 | 400 | Invalid role assignment |
+| USER_005 | 400 | Cannot delete self |
+| USER_006 | 400 | Cannot deactivate last admin |
+| USER_007 | 400 | Invalid parent-student link |
+
+### Institution Errors (INST_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| INST_001 | 404 | Institution not found |
+| INST_002 | 409 | Institution code already exists |
+| INST_003 | 400 | Institution is disabled |
+| INST_004 | 400 | X-Institution-ID header missing |
+| INST_005 | 403 | User not in this institution |
+
+### Academic Errors (ACAD_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| ACAD_001 | 404 | Class not found |
+| ACAD_002 | 404 | Section not found |
+| ACAD_003 | 404 | Subject not found |
+| ACAD_004 | 409 | Timetable conflict |
+| ACAD_005 | 400 | Academic year not active |
+| ACAD_006 | 400 | Cannot delete class with students |
+| ACAD_007 | 400 | Teacher already assigned |
+| ACAD_008 | 404 | Academic year not found |
+| ACAD_009 | 404 | Department not found |
+
+### Attendance Errors (ATT_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| ATT_001 | 409 | Attendance already marked |
+| ATT_002 | 400 | Invalid attendance date (future) |
+| ATT_003 | 400 | Student not in this class |
+| ATT_004 | 400 | Cannot modify past attendance |
+| ATT_005 | 404 | Attendance record not found |
+
+### Assessment Errors (ASSESS_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| ASSESS_001 | 404 | Assignment not found |
+| ASSESS_002 | 400 | Assignment past due date |
+| ASSESS_003 | 409 | Assignment already submitted |
+| ASSESS_004 | 404 | Exam not found |
+| ASSESS_005 | 409 | Results already entered |
+| ASSESS_006 | 400 | Invalid marks (exceeds total) |
+| ASSESS_007 | 400 | Exam date conflict |
+
+### Financial Errors (FIN_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| FIN_001 | 404 | Fee structure not found |
+| FIN_002 | 400 | Payment amount exceeds due |
+| FIN_003 | 400 | Invalid payment method |
+| FIN_004 | 409 | Duplicate transaction ID |
+| FIN_005 | 404 | Payment not found |
+| FIN_006 | 404 | Expense not found |
+| FIN_007 | 400 | Salary already processed |
+| FIN_008 | 400 | Invalid discount percentage |
+| FIN_009 | 400 | Cannot refund this payment |
+
+### Communication Errors (COMM_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| COMM_001 | 404 | Notice not found |
+| COMM_002 | 404 | Message not found |
+| COMM_003 | 400 | Invalid recipient |
+| COMM_004 | 400 | Message too long |
+| COMM_005 | 400 | Attachment too large |
+| COMM_006 | 403 | Cannot message this user |
+
+### Leave Errors (LEAVE_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| LEAVE_001 | 404 | Leave application not found |
+| LEAVE_002 | 400 | Insufficient leave balance |
+| LEAVE_003 | 400 | Leave dates overlap |
+| LEAVE_004 | 400 | Cannot apply for past dates |
+| LEAVE_005 | 400 | Leave already approved/rejected |
+| LEAVE_006 | 404 | Leave type not found |
+| LEAVE_007 | 400 | Document required for this leave type |
+
+### Library Errors (LIB_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| LIB_001 | 404 | Book not found |
+| LIB_002 | 400 | Book not available |
+| LIB_003 | 400 | Borrow limit exceeded |
+| LIB_004 | 404 | Borrowing record not found |
+| LIB_005 | 400 | Book already returned |
+| LIB_006 | 400 | Outstanding fine exists |
+| LIB_007 | 404 | Category not found |
+| LIB_008 | 400 | Cannot delete category with books |
+
+### Event Errors (EVENT_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| EVENT_001 | 404 | Event not found |
+| EVENT_002 | 400 | Event date in past |
+| EVENT_003 | 400 | Invalid event duration |
+| EVENT_004 | 404 | Holiday not found |
+| EVENT_005 | 409 | Holiday already exists for date |
+
+### File Upload Errors (FILE_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| FILE_001 | 400 | File too large |
+| FILE_002 | 400 | Invalid file type |
+| FILE_003 | 400 | File upload failed |
+| FILE_004 | 400 | No file provided |
+| FILE_005 | 400 | Maximum files exceeded |
+
+### System Errors (SYS_xxx)
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| SYS_001 | 500 | Internal server error |
+| SYS_002 | 503 | Service unavailable |
+| SYS_003 | 500 | Database error |
+| SYS_004 | 500 | Cache error |
+| SYS_005 | 429 | Rate limit exceeded |
+| SYS_006 | 500 | WebSocket connection error |
+
+---
+
+## Usage in Go
+
+```go
+// utils/errors.go
+
+type AppError struct {
+    Code       string            `json:"code"`
+    Message    string            `json:"error"`
+    StatusCode int               `json:"-"`
+    Details    map[string]string `json:"details,omitempty"`
+}
+
+func (e *AppError) Error() string {
+    return e.Message
+}
+
+// Predefined errors
+var (
+    ErrInvalidCredentials = &AppError{Code: "AUTH_001", Message: "Invalid credentials", StatusCode: 401}
+    ErrTokenExpired       = &AppError{Code: "AUTH_002", Message: "Token has expired", StatusCode: 401}
+    ErrInsufficientPerms  = &AppError{Code: "AUTHZ_001", Message: "Insufficient permissions", StatusCode: 403}
+    ErrResourceNotFound   = &AppError{Code: "RES_001", Message: "Resource not found", StatusCode: 404}
+    ErrDuplicateEntry     = &AppError{Code: "RES_003", Message: "Duplicate entry", StatusCode: 409}
+    // ...
+)
+```
+

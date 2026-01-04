@@ -1,0 +1,99 @@
+const PERMISSIONS = {
+  SUPER_ADMIN: ['*'],  // Full system access
+
+  ADMIN: [
+    // User Management
+    'USER_CREATE', 'USER_UPDATE', 'USER_DELETE', 'USER_VIEW',
+    // Academic Management
+    'STUDENT_MANAGE', 'TEACHER_MANAGE', 'CLASS_MANAGE',
+    'SECTION_MANAGE', 'SUBJECT_MANAGE', 'DEPARTMENT_MANAGE',
+    'ACADEMIC_YEAR_MANAGE', 'TIMETABLE_MANAGE',
+    // Finance
+    'FEE_STRUCTURE_MANAGE',
+    // Communication
+    'NOTICE_PUBLISH', 'ANNOUNCEMENT_CREATE',
+    // Reports
+    'REPORT_GENERATE',
+    // Leave
+    'LEAVE_APPROVE',
+    // Library
+    'LIBRARY_MANAGE',
+    // Events
+    'EVENT_MANAGE'
+  ],
+
+  TEACHER: [
+    // Attendance
+    'ATTENDANCE_MARK', 'ATTENDANCE_VIEW',
+    // Assessment
+    'ASSIGNMENT_CREATE', 'ASSIGNMENT_GRADE',
+    'EXAM_CREATE', 'RESULT_ENTER',
+    // Student Progress
+    'STUDENT_PROGRESS_VIEW',
+    // Communication
+    'PARENT_COMMUNICATE', 'MESSAGE_SEND',
+    // Leave
+    'LEAVE_APPLY',
+    // Resources
+    'RESOURCE_UPLOAD', 'MATERIAL_UPLOAD',
+    // Timetable
+    'TIMETABLE_VIEW',
+    // Online Class
+    'ONLINE_CLASS_CREATE'
+  ],
+
+  STUDENT: [
+    // Profile
+    'PROFILE_VIEW_OWN', 'PROFILE_UPDATE_OWN',
+    // Assignments
+    'ASSIGNMENT_VIEW', 'ASSIGNMENT_SUBMIT',
+    // Results
+    'RESULT_VIEW_OWN',
+    // Attendance
+    'ATTENDANCE_VIEW_OWN',
+    // Finance
+    'FEE_VIEW_OWN',
+    // Leave
+    'LEAVE_APPLY',
+    // Library
+    'LIBRARY_BORROW', 'LIBRARY_VIEW',
+    // Events
+    'EVENT_VIEW',
+    // Materials
+    'MATERIAL_DOWNLOAD',
+    // Communication
+    'MESSAGE_SEND', 'NOTICE_VIEW'
+  ],
+
+  PARENT: [
+    // Child Progress
+    'STUDENT_PROGRESS_VIEW',  // Linked children only
+    // Finance
+    'FEE_PAY', 'FEE_VIEW_CHILD',
+    // Communication
+    'TEACHER_COMMUNICATE', 'MESSAGE_SEND',
+    // Attendance
+    'ATTENDANCE_VIEW_CHILD',
+    // Leave
+    'LEAVE_APPLY_CHILD',
+    // Meeting
+    'MEETING_SCHEDULE',
+    // Events & Notices
+    'EVENT_VIEW', 'NOTICE_VIEW'
+  ],
+
+  ACCOUNTANT: [
+    // Fee Management
+    'FEE_COLLECT', 'FEE_VIEW_ALL', 'FEE_STRUCTURE_VIEW',
+    // Expense
+    'EXPENSE_MANAGE', 'EXPENSE_CREATE', 'EXPENSE_VIEW',
+    // Salary
+    'SALARY_PROCESS', 'SALARY_VIEW',
+    // Reports
+    'FINANCIAL_REPORT_GENERATE',
+    // Invoice
+    'INVOICE_GENERATE',
+    // Scholarship & Discount
+    'SCHOLARSHIP_MANAGE', 'DISCOUNT_APPLY'
+  ]
+};

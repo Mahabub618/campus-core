@@ -1,0 +1,37 @@
+Features:
+- School/Institution profile management
+- Academic year/session setup
+- Department management
+- Class/Section creation & management
+- Staff management (Teachers, Accountants)
+- Student admission & enrollment
+- Parent account management & linking
+- Fee structure definition
+- Timetable management & scheduling
+- Notice board management
+- Announcement publishing
+- Reports generation
+- Leave approval system
+- Library management (optional admin override)
+- Event & calendar management
+- Bulk import users (CSV/Excel)
+- Dashboard with school statistics
+
+Permissions:
+- SCHOOL_CONFIG_UPDATE
+- ACADEMIC_YEAR_MANAGE
+- DEPARTMENT_MANAGE
+- CLASS_MANAGE
+- SECTION_MANAGE
+- STAFF_MANAGE
+- STUDENT_MANAGE
+- PARENT_MANAGE
+- FEE_STRUCTURE_UPDATE
+- TIMETABLE_MANAGE
+- NOTICE_PUBLISH
+- ANNOUNCEMENT_CREATE
+- REPORT_GENERATE
+- LEAVE_APPROVE
+- LIBRARY_MANAGE
+- EVENT_MANAGE
+- USER_BULK_IMPORT

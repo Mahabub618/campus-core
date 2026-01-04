@@ -1,0 +1,92 @@
+-- Book Categories
+CREATE TABLE book_categories (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    parent_category_id UUID REFERENCES book_categories(id), -- For subcategories
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Books
+CREATE TABLE books (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    category_id UUID REFERENCES book_categories(id),
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255),
+    isbn VARCHAR(20),
+    publisher VARCHAR(255),
+    publication_year INTEGER,
+    edition VARCHAR(50),
+    description TEXT,
+    cover_image_url VARCHAR(500),
+    total_copies INTEGER DEFAULT 1,
+    available_copies INTEGER DEFAULT 1,
+    location VARCHAR(100), -- Shelf location
+    language VARCHAR(50) DEFAULT 'English',
+    is_available BOOLEAN DEFAULT true,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Book Borrowings
+CREATE TABLE book_borrowings (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    book_id UUID REFERENCES books(id),
+    user_id UUID REFERENCES users(id),
+    borrowed_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    returned_date DATE,
+    status VARCHAR(20) DEFAULT 'BORROWED', -- 'BORROWED', 'RETURNED', 'OVERDUE', 'LOST'
+    issued_by UUID REFERENCES users(id),
+    received_by UUID REFERENCES users(id),
+    notes TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Library Fines
+CREATE TABLE library_fines (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    borrowing_id UUID REFERENCES book_borrowings(id),
+    user_id UUID REFERENCES users(id),
+    amount DECIMAL(10,2) NOT NULL,
+    reason VARCHAR(50), -- 'OVERDUE', 'DAMAGE', 'LOST'
+    days_overdue INTEGER,
+    status VARCHAR(20) DEFAULT 'UNPAID', -- 'UNPAID', 'PAID', 'WAIVED'
+    paid_at TIMESTAMP,
+    collected_by UUID REFERENCES users(id),
+    waived_by UUID REFERENCES users(id),
+    waiver_reason TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Library Settings (per institution)
+CREATE TABLE library_settings (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id) UNIQUE,
+    max_books_per_student INTEGER DEFAULT 2,
+    max_books_per_teacher INTEGER DEFAULT 5,
+    loan_period_days INTEGER DEFAULT 14,
+    fine_per_day DECIMAL(5,2) DEFAULT 1.00,
+    max_renewals INTEGER DEFAULT 2,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX idx_books_institution ON books(institution_id);
+CREATE INDEX idx_books_category ON books(category_id);
+CREATE INDEX idx_books_available ON books(is_available);
+CREATE INDEX idx_borrowings_user ON book_borrowings(user_id);
+CREATE INDEX idx_borrowings_status ON book_borrowings(status);
+CREATE INDEX idx_borrowings_due_date ON book_borrowings(due_date);
+CREATE INDEX idx_fines_user ON library_fines(user_id);
+CREATE INDEX idx_fines_status ON library_fines(status);
+

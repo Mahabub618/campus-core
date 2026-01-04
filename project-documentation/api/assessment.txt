@@ -1,0 +1,14 @@
+# Assignments
+GET    /assignments         # List assignments
+POST   /assignments        # Create assignment
+GET    /assignments/:id    # Get assignment details
+POST   /assignments/:id/submit  # Submit assignment
+GET    /assignments/student/:studentId  # Student assignments
+
+# Exams
+GET    /exams              # List exams
+POST   /exams             # Create exam
+GET    /exams/:id         # Get exam details
+POST   /exams/:id/results # Enter exam results
+GET    /exams/:id/results # Get exam results
+GET    /results/student/:studentId  # Student results

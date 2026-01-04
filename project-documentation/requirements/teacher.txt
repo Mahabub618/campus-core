@@ -1,0 +1,32 @@
+Features:
+- View assigned classes & sections
+- View personal timetable
+- Mark attendance (batch/individual)
+- View attendance records & reports
+- Assignment creation & management
+- Grade/evaluate student assignments
+- Exam paper setting
+- Result entry & analysis
+- Student progress tracking & reports
+- Parent communication (messages)
+- Leave application
+- Resource/material sharing (upload)
+- Online class scheduling (future)
+- Dashboard with class overview
+- View student profiles (assigned classes only)
+
+Permissions:
+- ATTENDANCE_MARK
+- ATTENDANCE_VIEW
+- ASSIGNMENT_CREATE
+- ASSIGNMENT_GRADE
+- EXAM_CREATE
+- RESULT_ENTER
+- STUDENT_PROGRESS_VIEW
+- PARENT_COMMUNICATE
+- MESSAGE_SEND
+- LEAVE_APPLY
+- RESOURCE_UPLOAD
+- MATERIAL_UPLOAD
+- TIMETABLE_VIEW
+- ONLINE_CLASS_CREATE

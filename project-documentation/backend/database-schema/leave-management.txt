@@ -1,0 +1,56 @@
+-- Leave Types (Sick, Casual, Maternity, etc.)
+CREATE TABLE leave_types (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    max_days_per_year INTEGER DEFAULT 0,
+    is_paid BOOLEAN DEFAULT true,
+    applicable_to VARCHAR(50)[], -- ['TEACHER', 'STUDENT', 'STAFF']
+    requires_document BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Leave Applications
+CREATE TABLE leaves (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    user_id UUID REFERENCES users(id),
+    leave_type_id UUID REFERENCES leave_types(id),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_days INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    document_urls VARCHAR(500)[],
+    status VARCHAR(20) DEFAULT 'PENDING', -- 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'
+    applied_for_user_id UUID REFERENCES users(id), -- For parent applying for child
+    approved_by UUID REFERENCES users(id),
+    approved_at TIMESTAMP,
+    rejection_reason TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Leave Balances (for annual tracking)
+CREATE TABLE leave_balances (
+    id UUID PRIMARY KEY,
+    institution_id UUID REFERENCES institutions(id),
+    user_id UUID REFERENCES users(id),
+    leave_type_id UUID REFERENCES leave_types(id),
+    academic_year VARCHAR(20),
+    total_allowed INTEGER,
+    used INTEGER DEFAULT 0,
+    remaining INTEGER GENERATED ALWAYS AS (total_allowed - used) STORED,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    UNIQUE(user_id, leave_type_id, academic_year)
+);
+
+-- Indexes
+CREATE INDEX idx_leaves_user_id ON leaves(user_id);
+CREATE INDEX idx_leaves_institution_id ON leaves(institution_id);
+CREATE INDEX idx_leaves_status ON leaves(status);
+CREATE INDEX idx_leaves_dates ON leaves(start_date, end_date);
+CREATE INDEX idx_leave_balances_user_year ON leave_balances(user_id, academic_year);

@@ -1,0 +1,15 @@
+# Bulk Import
+POST   /users/bulk-import         # Import users from CSV/Excel
+POST   /students/bulk-enroll      # Bulk student enrollment
+POST   /attendance/bulk-mark      # Bulk mark attendance
+
+# Bulk Export
+GET    /users/export              # Export users to CSV/Excel
+GET    /students/export           # Export students
+GET    /attendance/export         # Export attendance records
+GET    /results/export            # Export results
+
+# Bulk Update
+PATCH  /users/bulk-status         # Bulk update user status
+PATCH  /students/bulk-promote     # Bulk promote students to next class
+

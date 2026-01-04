@@ -1,0 +1,15 @@
+# Notices
+GET    /notices           # List notices
+POST   /notices          # Create notice
+GET    /notices/:id      # Get notice details
+DELETE /notices/:id      # Delete notice
+
+# Messages
+GET    /messages         # Get messages (inbox)
+POST   /messages        # Send message
+GET    /messages/:id    # Get message
+POST   /messages/broadcast  # Broadcast message
+
+# Announcements
+GET    /announcements    # List announcements
+POST   /announcements   # Create announcement

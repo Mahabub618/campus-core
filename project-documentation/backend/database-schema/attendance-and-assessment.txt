@@ -1,0 +1,50 @@
+CREATE TABLE attendance (
+    id UUID PRIMARY KEY,
+    student_id UUID REFERENCES students(id),
+    date DATE,
+    status VARCHAR(20), -- 'PRESENT', 'ABSENT', 'LATE', 'HALF_DAY'
+    marked_by UUID REFERENCES users(id),
+    remarks TEXT
+);
+
+CREATE TABLE assignments (
+    id UUID PRIMARY KEY,
+    title VARCHAR(255),
+    description TEXT,
+    subject_id UUID REFERENCES subjects(id),
+    class_id UUID REFERENCES classes(id),
+    due_date TIMESTAMP,
+    total_marks DECIMAL(5,2),
+    attachment_urls VARCHAR(500)[]
+);
+
+CREATE TABLE student_assignments (
+    id UUID PRIMARY KEY,
+    assignment_id UUID REFERENCES assignments(id),
+    student_id UUID REFERENCES students(id),
+    submitted_at TIMESTAMP,
+    marks_obtained DECIMAL(5,2),
+    feedback TEXT,
+    submission_url VARCHAR(500)
+);
+
+CREATE TABLE exams (
+    id UUID PRIMARY KEY,
+    name VARCHAR(100),
+    exam_type VARCHAR(50), -- 'TERM', 'UNIT', 'FINAL'
+    class_id UUID REFERENCES classes(id),
+    start_date DATE,
+    end_date DATE,
+    total_marks DECIMAL(6,2)
+);
+
+CREATE TABLE exam_results (
+    id UUID PRIMARY KEY,
+    exam_id UUID REFERENCES exams(id),
+    student_id UUID REFERENCES students(id),
+    subject_id UUID REFERENCES subjects(id),
+    marks_obtained DECIMAL(5,2),
+    grade VARCHAR(5),
+    percentage DECIMAL(5,2),
+    rank_in_class INTEGER
+);

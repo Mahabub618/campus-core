@@ -1,0 +1,13 @@
+# Institution Management (Super Admin Only)
+GET    /institutions              # List all institutions
+POST   /institutions              # Create new institution
+GET    /institutions/:id          # Get institution details
+PUT    /institutions/:id          # Update institution
+DELETE /institutions/:id          # Delete institution
+PATCH  /institutions/:id/status   # Enable/Disable institution
+GET    /institutions/:id/stats    # Get institution statistics
+GET    /institutions/:id/admins   # List admins of institution
+POST   /institutions/:id/admins   # Assign admin to institution
+
+# Note: All other APIs should include X-Institution-ID header for multi-tenancy
+

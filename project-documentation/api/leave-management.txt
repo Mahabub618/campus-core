@@ -1,0 +1,21 @@
+# Leave Application
+GET    /leaves                    # List leaves (filtered by role)
+POST   /leaves                    # Apply for leave
+GET    /leaves/:id                # Get leave details
+PUT    /leaves/:id                # Update leave application
+DELETE /leaves/:id                # Cancel leave application
+
+# Leave Approval (Admin only)
+PATCH  /leaves/:id/approve        # Approve leave
+PATCH  /leaves/:id/reject         # Reject leave
+GET    /leaves/pending            # List pending approvals
+
+# Leave Types
+GET    /leave-types               # List leave types
+POST   /leave-types               # Create leave type (Admin)
+PUT    /leave-types/:id           # Update leave type
+DELETE /leave-types/:id           # Delete leave type
+
+# Leave Balance
+GET    /leaves/balance/:userId    # Get leave balance for user
+

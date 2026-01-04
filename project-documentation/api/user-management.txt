@@ -1,0 +1,44 @@
+# User CRUD
+GET    /users                   # List users (with filters, pagination)
+GET    /users/:id               # Get user details
+POST   /users                   # Create user
+PUT    /users/:id               # Update user
+DELETE /users/:id               # Delete user (soft delete)
+PATCH  /users/:id/status        # Activate/Deactivate user
+POST   /users/bulk-import       # Bulk import users from CSV/Excel
+
+# Profile Management
+GET    /profile                 # Get own profile
+PUT    /profile                 # Update own profile
+PUT    /profile/avatar          # Update profile avatar
+PUT    /profile/password        # Update password
+
+# Teacher Management
+GET    /teachers                # List all teachers
+GET    /teachers/:id            # Get teacher details
+POST   /teachers                # Create teacher
+PUT    /teachers/:id            # Update teacher
+GET    /teachers/:id/classes    # Get teacher's assigned classes
+GET    /teachers/:id/subjects   # Get teacher's subjects
+
+# Student Management
+GET    /students                # List all students
+GET    /students/:id            # Get student details
+POST   /students                # Create student (admission)
+PUT    /students/:id            # Update student
+GET    /students/:id/parents    # Get student's parents
+POST   /students/:id/parents    # Link parent to student
+DELETE /students/:id/parents/:parentId  # Unlink parent
+
+# Parent Management
+GET    /parents                 # List all parents
+GET    /parents/:id             # Get parent details
+POST   /parents                 # Create parent
+PUT    /parents/:id             # Update parent
+GET    /parents/:id/children    # Get parent's linked students
+
+# Accountant Management
+GET    /accountants             # List all accountants
+GET    /accountants/:id         # Get accountant details
+POST   /accountants             # Create accountant
+PUT    /accountants/:id         # Update accountant

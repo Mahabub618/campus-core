@@ -1,0 +1,84 @@
+# WebSocket API Documentation
+
+## Connection
+WebSocket URL: ws://[base-url]/ws
+
+## Authentication
+Connect with JWT token as query parameter:
+ws://[base-url]/ws?token=<jwt_token>
+
+## Message Format
+All messages follow this structure:
+{
+  "type": "string",     // Message type
+  "channel": "string",  // Channel name
+  "data": {},           // Payload
+  "timestamp": "string" // ISO timestamp
+}
+
+## Channels
+
+### notifications
+Purpose: Real-time notifications for the user
+Subscribe: Automatic on connection
+Events:
+  - notification:new      # New notification received
+  - notification:read     # Notification marked as read
+
+### messages:{userId}
+Purpose: Direct messages for specific user
+Subscribe: Automatic on connection
+Events:
+  - message:new           # New message received
+  - message:read          # Message read receipt
+
+### announcements:{institutionId}
+Purpose: Institution-wide announcements
+Subscribe: Automatic for authenticated users
+Events:
+  - announcement:new      # New announcement published
+
+### attendance:{classId}
+Purpose: Live attendance updates
+Subscribe: On entering attendance page (teacher)
+Events:
+  - attendance:marked     # Attendance marked for student
+  - attendance:updated    # Attendance record updated
+
+## Client Events (Send)
+
+### subscribe
+{
+  "type": "subscribe",
+  "channel": "attendance:123"
+}
+
+### unsubscribe
+{
+  "type": "unsubscribe",
+  "channel": "attendance:123"
+}
+
+### message:send
+{
+  "type": "message:send",
+  "data": {
+    "recipientId": "string",
+    "content": "string"
+  }
+}
+
+### notification:read
+{
+  "type": "notification:read",
+  "data": {
+    "notificationId": "string"
+  }
+}
+
+## Connection Events
+- connect           # Connection established
+- disconnect        # Connection closed
+- reconnect         # Auto-reconnection attempt
+- error             # Connection error
+

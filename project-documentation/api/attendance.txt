@@ -1,0 +1,6 @@
+POST   /attendance/mark     # Mark attendance (batch)
+GET    /attendance          # Get attendance records
+GET    /attendance/student/:studentId  # Student attendance
+GET    /attendance/class/:classId/date/:date  # Class attendance for date
+PUT    /attendance/:id      # Update attendance
+GET    /attendance/report   # Generate attendance report

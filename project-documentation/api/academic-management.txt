@@ -1,0 +1,48 @@
+# Academic Year Management
+GET    /academic-years              # List academic years
+POST   /academic-years              # Create academic year
+GET    /academic-years/:id          # Get academic year details
+PUT    /academic-years/:id          # Update academic year
+PATCH  /academic-years/:id/activate # Set as current academic year
+GET    /academic-years/current      # Get current academic year
+
+# Class Management
+GET    /classes                     # List classes
+POST   /classes                     # Create class
+GET    /classes/:id                 # Get class details
+PUT    /classes/:id                 # Update class
+DELETE /classes/:id                 # Delete class
+GET    /classes/:id/students        # Students in class
+GET    /classes/:id/teachers        # Teachers assigned to class
+
+# Section Management
+GET    /classes/:classId/sections   # List sections of a class
+POST   /classes/:classId/sections   # Create section
+PUT    /sections/:id                # Update section
+DELETE /sections/:id                # Delete section
+GET    /sections/:id/students       # Students in section
+
+# Department Management
+GET    /departments                 # List departments
+POST   /departments                 # Create department
+GET    /departments/:id             # Get department details
+PUT    /departments/:id             # Update department
+DELETE /departments/:id             # Delete department
+GET    /departments/:id/staff       # Staff in department
+
+# Subject Management
+GET    /subjects                    # List subjects
+POST   /subjects                    # Create subject
+GET    /subjects/:id                # Get subject details
+PUT    /subjects/:id                # Update subject
+DELETE /subjects/:id                # Delete subject
+GET    /subjects/class/:classId     # Subjects for a class
+
+# Timetable Management
+GET    /timetable                   # Get timetable (with filters)
+POST   /timetable                   # Create timetable entry
+PUT    /timetable/:id               # Update timetable
+DELETE /timetable/:id               # Delete timetable entry
+GET    /timetable/class/:classId    # Class timetable
+GET    /timetable/teacher/:teacherId # Teacher timetable
+GET    /timetable/section/:sectionId # Section timetable
