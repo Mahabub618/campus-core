@@ -70,9 +70,12 @@ func (r *Router) Setup() *gin.Engine {
 		protected := v1.Group("")
 		protected.Use(middleware.AuthMiddleware(r.jwtManager))
 		{
-			// Future protected routes go here
-			// r.setupUserRoutes(protected)
-			// r.setupInstitutionRoutes(protected)
+			// Tenant middleware to resolve institution context
+			protected.Use(middleware.TenantMiddleware())
+
+			r.setupInstitutionRoutes(protected)
+			r.setupUserRoutes(protected)
+			r.setupRoleRoutes(protected)
 		}
 	}
 

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"campus-core/internal/models"
@@ -10,6 +11,14 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+// UserFilter holds filter criteria for users
+type UserFilter struct {
+	InstitutionID string
+	Role          string
+	Search        string // Search in email, phone, name
+	IsActive      *bool
+}
 
 // UserRepository handles database operations for users
 type UserRepository struct {
@@ -179,4 +188,56 @@ func (r *UserRepository) CreateWithProfile(user *models.User, profile *models.Us
 
 		return nil
 	})
+}
+
+// FindAll returns users matching filters
+func (r *UserRepository) FindAll(filter UserFilter, pagination utils.PaginationParams) ([]models.User, int64, error) {
+	var users []models.User
+	var total int64
+
+	db := r.db.Model(&models.User{}).Preload("Profile")
+
+	// Apply Tenant Scope
+	if filter.InstitutionID != "" {
+		db = db.Joins("LEFT JOIN user_profiles ON user_profiles.user_id = users.id").
+			Where("user_profiles.institution_id = ?", filter.InstitutionID)
+	}
+
+	// Apply Role Scope
+	if filter.Role != "" {
+		db = db.Where("users.role = ?", filter.Role)
+	}
+
+	// Apply Search
+	if filter.Search != "" {
+		search := "%" + strings.ToLower(filter.Search) + "%"
+		db = db.Where(
+			"LOWER(users.email) LIKE ? OR LOWER(users.phone) LIKE ? OR "+
+				"LOWER(user_profiles.first_name) LIKE ? OR LOWER(user_profiles.last_name) LIKE ?",
+			search, search, search, search,
+		)
+	}
+
+	// Apply Status
+	if filter.IsActive != nil {
+		db = db.Where("users.is_active = ?", *filter.IsActive)
+	}
+
+	// Count total
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Apply Pagination
+	err := db.Scopes(utils.Paginate(pagination)).Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}
+
+// UpdateStatus updates the user's active status
+func (r *UserRepository) UpdateStatus(id uuid.UUID, isActive bool) error {
+	return r.db.Model(&models.User{}).Where("id = ?", id).Update("is_active", isActive).Error
 }

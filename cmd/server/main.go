@@ -8,7 +8,6 @@ import (
 
 	"campus-core/internal/config"
 	"campus-core/internal/database"
-	"campus-core/internal/models"
 	"campus-core/internal/router"
 	"campus-core/internal/utils"
 	"campus-core/pkg/logger"
@@ -48,17 +47,9 @@ func main() {
 	}
 	defer database.CloseDB()
 
-	// Run auto-migration
-	if err := database.AutoMigrate(db,
-		&models.Institution{},
-		&models.User{},
-		&models.UserProfile{},
-		&models.Teacher{},
-		&models.Student{},
-		&models.Parent{},
-		&models.ParentStudentRelation{},
-	); err != nil {
-		logger.Fatal("Failed to run database migration", zap.Error(err))
+	// Run database migrations
+	if err := database.RunMigrations(&cfg.Database); err != nil {
+		logger.Fatal("Failed to run database migrations", zap.Error(err))
 	}
 
 	// Seed database
