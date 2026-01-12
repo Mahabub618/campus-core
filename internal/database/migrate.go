@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	"campus-core/internal/config"
 	"campus-core/pkg/logger"
@@ -16,8 +17,13 @@ import (
 func RunMigrations(cfg *config.DatabaseConfig) error {
 	migrationPath := "file://internal/database/migrations"
 
+	// Construct migrations URL manually as golang-migrate requires URL format (postgres://)
+	// whereas GORM DSN is key=value
+	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.User, url.QueryEscape(cfg.Password), cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
+
 	// Create migration instance
-	m, err := migrate.New(migrationPath, cfg.GetDSN())
+	m, err := migrate.New(migrationPath, databaseURL)
 	if err != nil {
 		return fmt.Errorf("failed to create migration instance: %w", err)
 	}
