@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS announcements;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS notices;
+DROP TABLE IF EXISTS academic_calendar;
+DROP TABLE IF EXISTS holidays;
+DROP TABLE IF EXISTS event_participants;
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS library_settings;
+DROP TABLE IF EXISTS library_fines;
+DROP TABLE IF EXISTS book_borrowings;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS book_categories;
+DROP TABLE IF EXISTS salaries;
+DROP TABLE IF EXISTS expenses;
+DROP TABLE IF EXISTS fee_payments;
+DROP TABLE IF EXISTS fee_structures;
