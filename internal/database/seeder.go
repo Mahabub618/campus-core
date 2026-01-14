@@ -10,26 +10,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// Seeder handles database seeding
 type Seeder struct {
 	db *gorm.DB
 }
 
-// NewSeeder creates a new seeder instance
 func NewSeeder(db *gorm.DB) *Seeder {
 	return &Seeder{db: db}
 }
 
-// SeedAll runs all seed functions
 func (s *Seeder) SeedAll() error {
 	logger.Info("Starting database seeding...")
-
-	// 1. Institutions
 	if err := s.SeedInstitutions(); err != nil {
 		return err
 	}
 
-	// 2. Academic Data
 	if err := s.SeedDepartments(); err != nil {
 		return err
 	}
