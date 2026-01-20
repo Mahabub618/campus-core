@@ -30,6 +30,8 @@ func (r *Router) setupUserRoutes(rg *gin.RouterGroup) {
 		users.POST("", userHandler.CreateUser)
 		users.GET("", userHandler.GetAllUsers)
 		users.GET("/:id", userHandler.GetUser)
+		users.PUT("/:id", userHandler.UpdateUser)
+		users.DELETE("/:id", userHandler.DeleteUser)
 		users.PATCH("/:id/status", userHandler.ToggleStatus)
 	}
 
@@ -38,6 +40,7 @@ func (r *Router) setupUserRoutes(rg *gin.RouterGroup) {
 	{
 		profile.GET("", userHandler.GetProfile)
 		profile.PUT("", userHandler.UpdateProfile)
-		// profile.PUT("/avatar", userHandler.UpdateAvatar)
+		profile.PUT("/avatar", userHandler.UpdateAvatar)
+		profile.PUT("/password", userHandler.UpdatePassword)
 	}
 }

@@ -39,6 +39,9 @@ func (r *Router) setupRoleRoutes(rg *gin.RouterGroup) {
 		teachers.POST("", teacherHandler.Create)
 		teachers.GET("", teacherHandler.GetAll)
 		teachers.GET("/:id", teacherHandler.GetByID)
+		teachers.PUT("/:id", teacherHandler.Update)
+		teachers.GET("/:id/classes", teacherHandler.GetClasses)
+		teachers.GET("/:id/subjects", teacherHandler.GetSubjects)
 	}
 
 	// Students
@@ -47,6 +50,10 @@ func (r *Router) setupRoleRoutes(rg *gin.RouterGroup) {
 		students.POST("", studentHandler.Create)
 		students.GET("", studentHandler.GetAll)
 		students.GET("/:id", studentHandler.GetByID)
+		students.PUT("/:id", studentHandler.Update)
+		students.GET("/:id/parents", studentHandler.GetParents)
+		students.POST("/:id/parents", studentHandler.LinkParent)
+		students.DELETE("/:id/parents/:parentId", studentHandler.UnlinkParent)
 	}
 
 	// Parents
@@ -55,6 +62,8 @@ func (r *Router) setupRoleRoutes(rg *gin.RouterGroup) {
 		parents.POST("", parentHandler.Create)
 		parents.GET("", parentHandler.GetAll)
 		parents.GET("/:id", parentHandler.GetByID)
+		parents.PUT("/:id", parentHandler.Update)
+		parents.GET("/:id/children", parentHandler.GetChildren)
 	}
 
 	// Accountants
@@ -63,5 +72,6 @@ func (r *Router) setupRoleRoutes(rg *gin.RouterGroup) {
 		accountants.POST("", accountantHandler.Create)
 		accountants.GET("", accountantHandler.GetAll)
 		accountants.GET("/:id", accountantHandler.GetByID)
+		accountants.PUT("/:id", accountantHandler.Update)
 	}
 }

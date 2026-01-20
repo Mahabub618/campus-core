@@ -71,3 +71,42 @@ func (h *ParentHandler) GetByID(c *gin.Context) {
 
 	utils.OK(c, "", parent)
 }
+
+func (h *ParentHandler) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req request.UpdateParentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	institutionID := middleware.GetInstitutionID(c)
+	parent, err := h.service.UpdateParent(id, &req, institutionID)
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "Parent updated successfully", parent)
+}
+
+func (h *ParentHandler) GetChildren(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	children, err := h.service.GetParentChildren(id)
+	if err != nil {
+		utils.Error(c, http.StatusNotFound, err)
+		return
+	}
+
+	utils.OK(c, "", children)
+}

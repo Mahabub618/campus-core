@@ -183,3 +183,211 @@ func (s *StudentService) GetStudent(id uuid.UUID) (*response.UserResponse, error
 	}
 	return &resp, nil
 }
+
+// UpdateStudent updates a student
+func (s *StudentService) UpdateStudent(id uuid.UUID, req *request.UpdateStudentRequest, institutionID string) (*response.UserResponse, error) {
+	student, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access
+	if institutionID != "" && student.InstitutionID.String() != institutionID {
+		return nil, utils.ErrCrossTenantAccess
+	}
+
+	// Update user fields
+	if req.Email != "" && req.Email != student.User.Email {
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("email = ? AND id != ?", req.Email, student.User.ID).Count(&count).Error; err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if count > 0 {
+			return nil, utils.ErrEmailAlreadyExists
+		}
+		student.User.Email = req.Email
+	}
+
+	if req.Phone != "" {
+		student.User.Phone = req.Phone
+	}
+
+	if req.IsActive != nil {
+		student.User.IsActive = *req.IsActive
+	}
+
+	// Update profile fields
+	if student.User.Profile != nil {
+		if req.FirstName != "" {
+			student.User.Profile.FirstName = req.FirstName
+		}
+		if req.LastName != "" {
+			student.User.Profile.LastName = req.LastName
+		}
+	}
+
+	// Update student-specific fields
+	if req.ClassID != "" {
+		classID, _ := uuid.Parse(req.ClassID)
+		student.ClassID = &classID
+	}
+
+	if req.SectionID != "" {
+		sectionID, _ := uuid.Parse(req.SectionID)
+		student.SectionID = &sectionID
+	}
+
+	if req.RollNumber != nil {
+		student.RollNumber = *req.RollNumber
+	}
+
+	if req.BloodGroup != "" {
+		student.BloodGroup = req.BloodGroup
+	}
+
+	if req.MedicalInfo != "" {
+		student.MedicalInfo = req.MedicalInfo
+	}
+
+	// Save changes in transaction
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(student.User).Error; err != nil {
+			return err
+		}
+		if student.User.Profile != nil {
+			if err := tx.Save(student.User.Profile).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Save(student).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	resp := response.UserResponse{
+		ID:       student.User.ID,
+		Email:    student.User.Email,
+		Phone:    student.User.Phone,
+		Role:     student.User.Role,
+		IsActive: student.User.IsActive,
+		Profile: &response.ProfileResponse{
+			ID:            student.User.Profile.ID,
+			FirstName:     student.User.Profile.FirstName,
+			LastName:      student.User.Profile.LastName,
+			InstitutionID: student.User.Profile.InstitutionID,
+		},
+	}
+	return &resp, nil
+}
+
+// GetStudentParents gets a student's linked parents
+func (s *StudentService) GetStudentParents(id uuid.UUID) ([]response.ParentRelationResponse, error) {
+	student, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load relations
+	var relations []models.ParentStudentRelation
+	if err := s.db.Preload("Parent.User.Profile").Where("student_id = ?", student.ID).Find(&relations).Error; err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	var responses []response.ParentRelationResponse
+	for _, rel := range relations {
+		if rel.Parent != nil && rel.Parent.User != nil {
+			responses = append(responses, response.ParentRelationResponse{
+				ParentID:     rel.ParentID,
+				Relationship: rel.Relationship,
+				IsPrimary:    rel.IsPrimary,
+				Parent: response.UserResponse{
+					ID:       rel.Parent.User.ID,
+					Email:    rel.Parent.User.Email,
+					Phone:    rel.Parent.User.Phone,
+					Role:     rel.Parent.User.Role,
+					IsActive: rel.Parent.User.IsActive,
+					Profile: &response.ProfileResponse{
+						ID:        rel.Parent.User.Profile.ID,
+						FirstName: rel.Parent.User.Profile.FirstName,
+						LastName:  rel.Parent.User.Profile.LastName,
+					},
+				},
+			})
+		}
+	}
+
+	return responses, nil
+}
+
+// LinkParent links a parent to a student
+func (s *StudentService) LinkParent(studentID uuid.UUID, req *request.LinkParentRequest) error {
+	// Verify student exists
+	student, err := s.repo.FindByID(studentID)
+	if err != nil {
+		return err
+	}
+
+	parentID, err := uuid.Parse(req.ParentID)
+	if err != nil {
+		return utils.ErrInvalidUUID
+	}
+
+	// Verify parent exists and belongs to same institution
+	var parent models.Parent
+	if err := s.db.Where("id = ? AND institution_id = ?", parentID, student.InstitutionID).First(&parent).Error; err != nil {
+		return utils.ErrInvalidParentStudentLink
+	}
+
+	// Check if relation already exists
+	var count int64
+	if err := s.db.Model(&models.ParentStudentRelation{}).
+		Where("parent_id = ? AND student_id = ?", parentID, studentID).
+		Count(&count).Error; err != nil {
+		return utils.ErrInternalServer.Wrap(err)
+	}
+	if count > 0 {
+		return utils.ErrResourceExists
+	}
+
+	// Create relation
+	relation := &models.ParentStudentRelation{
+		BaseModel:    models.BaseModel{ID: uuid.New()},
+		ParentID:     parentID,
+		StudentID:    studentID,
+		Relationship: req.Relationship,
+		IsPrimary:    req.IsPrimary,
+	}
+
+	if err := s.db.Create(relation).Error; err != nil {
+		return utils.ErrInternalServer.Wrap(err)
+	}
+
+	return nil
+}
+
+// UnlinkParent removes a parent-student relationship
+func (s *StudentService) UnlinkParent(studentID, parentID uuid.UUID) error {
+	// Verify student exists
+	if _, err := s.repo.FindByID(studentID); err != nil {
+		return err
+	}
+
+	// Delete the relation
+	result := s.db.Where("parent_id = ? AND student_id = ?", parentID, studentID).
+		Delete(&models.ParentStudentRelation{})
+
+	if result.Error != nil {
+		return utils.ErrInternalServer.Wrap(result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return utils.ErrResourceNotFound
+	}
+
+	return nil
+}

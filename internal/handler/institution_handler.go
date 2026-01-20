@@ -147,3 +147,77 @@ func (h *InstitutionHandler) GetStats(c *gin.Context) {
 
 	utils.OK(c, "", stats)
 }
+
+// ToggleStatus enables or disables an institution
+func (h *InstitutionHandler) ToggleStatus(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req struct {
+		IsActive bool `json:"is_active"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.BadRequest(c, "Invalid request body")
+		return
+	}
+
+	if err := h.service.ToggleStatus(id, req.IsActive); err != nil {
+		utils.Error(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	status := "disabled"
+	if req.IsActive {
+		status = "enabled"
+	}
+	utils.OK(c, "Institution "+status+" successfully", nil)
+}
+
+// GetAdmins returns a list of admins for an institution
+func (h *InstitutionHandler) GetAdmins(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	admins, err := h.service.GetAdmins(id)
+	if err != nil {
+		utils.Error(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.OK(c, "", admins)
+}
+
+// AssignAdmin assigns an admin to an institution
+func (h *InstitutionHandler) AssignAdmin(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req struct {
+		Email     string `json:"email" binding:"required,email"`
+		FirstName string `json:"first_name" binding:"required"`
+		LastName  string `json:"last_name" binding:"required"`
+		Password  string `json:"password" binding:"required,min=8"`
+		Phone     string `json:"phone"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	admin, err := h.service.AssignAdmin(id, req.Email, req.FirstName, req.LastName, req.Password, req.Phone)
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.Created(c, "Admin assigned successfully", admin)
+}

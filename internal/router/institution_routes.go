@@ -23,6 +23,9 @@ func (r *Router) setupInstitutionRoutes(rg *gin.RouterGroup) {
 		institutions.GET("/:id", handler.GetByID)
 		institutions.PUT("/:id", handler.Update)
 		institutions.DELETE("/:id", handler.Delete)
+		institutions.PATCH("/:id/status", handler.ToggleStatus)
 		institutions.GET("/:id/stats", handler.GetStats)
+		institutions.GET("/:id/admins", handler.GetAdmins)
+		institutions.POST("/:id/admins", handler.AssignAdmin)
 	}
 }

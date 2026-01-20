@@ -71,3 +71,58 @@ func (h *TeacherHandler) GetByID(c *gin.Context) {
 
 	utils.OK(c, "", teacher)
 }
+
+func (h *TeacherHandler) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req request.UpdateTeacherRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	institutionID := middleware.GetInstitutionID(c)
+	teacher, err := h.service.UpdateTeacher(id, &req, institutionID)
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "Teacher updated successfully", teacher)
+}
+
+func (h *TeacherHandler) GetClasses(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	classes, err := h.service.GetTeacherClasses(id)
+	if err != nil {
+		utils.Error(c, http.StatusNotFound, err)
+		return
+	}
+
+	utils.OK(c, "", classes)
+}
+
+func (h *TeacherHandler) GetSubjects(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	subjects, err := h.service.GetTeacherSubjects(id)
+	if err != nil {
+		utils.Error(c, http.StatusNotFound, err)
+		return
+	}
+
+	utils.OK(c, "", subjects)
+}

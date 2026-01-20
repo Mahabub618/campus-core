@@ -51,3 +51,19 @@ type ProfileResponse struct {
 type MessageResponse struct {
 	Message string `json:"message"`
 }
+
+// ParentRelationResponse represents a parent-student relationship in responses
+type ParentRelationResponse struct {
+	ParentID     uuid.UUID    `json:"parent_id"`
+	Relationship string       `json:"relationship"`
+	IsPrimary    bool         `json:"is_primary"`
+	Parent       UserResponse `json:"parent"`
+}
+
+// ChildRelationResponse represents a child (student) in parent responses
+type ChildRelationResponse struct {
+	StudentID    uuid.UUID    `json:"student_id"`
+	Relationship string       `json:"relationship"`
+	IsPrimary    bool         `json:"is_primary"`
+	Student      UserResponse `json:"student"`
+}

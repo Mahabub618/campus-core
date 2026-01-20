@@ -100,23 +100,94 @@ func (s *UserService) GetAllUsers(filter repository.UserFilter, params utils.Pag
 	return userResponses, pagination, nil
 }
 
-// UpdateUser updates a user
-func (s *UserService) UpdateUser(id uuid.UUID, req map[string]interface{}) (*response.UserResponse, error) {
+// UpdateUser updates a user (Admin function)
+func (s *UserService) UpdateUser(id uuid.UUID, req *request.UpdateUserRequest, creatorRole string, creatorInstitutionID string) (*response.UserResponse, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Logic to update user fields...
-	// For MVP, focus on Profile updates mainly
-	// Updates to User table (email/phone) require uniqueness checks
+	// Security: Verify tenant access for non-super admins
+	if creatorRole != models.RoleSuperAdmin {
+		if user.Profile != nil && user.Profile.InstitutionID != nil {
+			if user.Profile.InstitutionID.String() != creatorInstitutionID {
+				return nil, utils.ErrCrossTenantAccess
+			}
+		}
+		// Admin cannot update Super Admins
+		if user.Role == models.RoleSuperAdmin {
+			return nil, utils.ErrActionNotPermitted
+		}
+	}
+
+	// Update email if provided and changed
+	if req.Email != "" && req.Email != user.Email {
+		exists, err := s.repo.EmailExists(req.Email)
+		if err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if exists {
+			return nil, utils.ErrEmailAlreadyExists
+		}
+		user.Email = req.Email
+	}
+
+	// Update phone if provided and changed
+	if req.Phone != "" && req.Phone != user.Phone {
+		exists, err := s.repo.PhoneExists(req.Phone)
+		if err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if exists {
+			return nil, utils.ErrPhoneAlreadyExists
+		}
+		user.Phone = req.Phone
+	}
+
+	// Update active status if provided
+	if req.IsActive != nil {
+		user.IsActive = *req.IsActive
+	}
+
+	// Update profile fields
+	if user.Profile != nil {
+		if req.FirstName != "" {
+			user.Profile.FirstName = req.FirstName
+		}
+		if req.LastName != "" {
+			user.Profile.LastName = req.LastName
+		}
+	}
 
 	if err := s.repo.Update(user); err != nil {
-		return nil, err
+		return nil, utils.ErrInternalServer.Wrap(err)
 	}
 
 	resp := s.authService.toUserResponse(user)
 	return &resp, nil
+}
+
+// DeleteUser soft deletes a user
+func (s *UserService) DeleteUser(id uuid.UUID, creatorRole string, creatorInstitutionID string) error {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Security: Verify tenant access for non-super admins
+	if creatorRole != models.RoleSuperAdmin {
+		if user.Profile != nil && user.Profile.InstitutionID != nil {
+			if user.Profile.InstitutionID.String() != creatorInstitutionID {
+				return utils.ErrCrossTenantAccess
+			}
+		}
+		// Admin cannot delete Super Admins
+		if user.Role == models.RoleSuperAdmin {
+			return utils.ErrActionNotPermitted
+		}
+	}
+
+	return s.repo.Delete(id)
 }
 
 // ToggleStatus changes user active status
@@ -147,4 +218,46 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, firstName, lastName string
 
 	resp := s.authService.toUserResponse(user)
 	return &resp, nil
+}
+
+// UpdateAvatar updates the user's avatar
+func (s *UserService) UpdateAvatar(userID uuid.UUID, avatarURL string) (*response.UserResponse, error) {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Profile == nil {
+		user.Profile = &models.UserProfile{UserID: userID}
+	}
+
+	user.Profile.ProfileImageURL = avatarURL
+
+	if err := s.repo.Update(user); err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	resp := s.authService.toUserResponse(user)
+	return &resp, nil
+}
+
+// UpdatePassword updates the user's password
+func (s *UserService) UpdatePassword(userID uuid.UUID, oldPassword, newPassword string) error {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	// Verify old password
+	if !utils.CheckPassword(oldPassword, user.PasswordHash) {
+		return utils.ErrInvalidCredentials
+	}
+
+	// Hash new password
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return utils.ErrInternalServer.Wrap(err)
+	}
+
+	return s.repo.UpdatePassword(userID, hashedPassword)
 }

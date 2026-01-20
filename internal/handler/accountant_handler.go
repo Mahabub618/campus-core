@@ -71,3 +71,26 @@ func (h *AccountantHandler) GetByID(c *gin.Context) {
 
 	utils.OK(c, "", accountant)
 }
+
+func (h *AccountantHandler) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req request.UpdateAccountantRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	institutionID := middleware.GetInstitutionID(c)
+	accountant, err := h.service.UpdateAccountant(id, &req, institutionID)
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "Accountant updated successfully", accountant)
+}

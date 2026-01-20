@@ -115,3 +115,78 @@ func (r *InstitutionRepository) CodeExists(code string) (bool, error) {
 	err := r.db.Model(&models.Institution{}).Where("code = ?", code).Count(&count).Error
 	return count > 0, err
 }
+
+// GetAdmins returns all admin users for an institution
+func (r *InstitutionRepository) GetAdmins(institutionID uuid.UUID) ([]models.User, error) {
+	var users []models.User
+
+	err := r.db.Preload("Profile").
+		Joins("INNER JOIN user_profiles ON user_profiles.user_id = users.id").
+		Where("user_profiles.institution_id = ? AND users.role = ?", institutionID, models.RoleAdmin).
+		Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+// CreateAdmin creates a new admin user for an institution
+func (r *InstitutionRepository) CreateAdmin(institutionID uuid.UUID, email, firstName, lastName, password, phone string) (*models.User, error) {
+	// Check if email already exists
+	var count int64
+	if err := r.db.Model(&models.User{}).Where("email = ?", email).Count(&count).Error; err != nil {
+		return nil, err
+	}
+	if count > 0 {
+		return nil, utils.ErrEmailAlreadyExists
+	}
+
+	// Hash password
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	var user *models.User
+	err = r.db.Transaction(func(tx *gorm.DB) error {
+		// Create user
+		user = &models.User{
+			BaseModel: models.BaseModel{
+				ID: uuid.New(),
+			},
+			Email:        email,
+			Phone:        phone,
+			PasswordHash: hashedPassword,
+			Role:         models.RoleAdmin,
+			IsActive:     true,
+		}
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+
+		// Create profile
+		profile := &models.UserProfile{
+			BaseModel: models.BaseModel{
+				ID: uuid.New(),
+			},
+			UserID:        user.ID,
+			InstitutionID: &institutionID,
+			FirstName:     firstName,
+			LastName:      lastName,
+		}
+		if err := tx.Create(profile).Error; err != nil {
+			return err
+		}
+
+		user.Profile = profile
+		return nil
+	})
+
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	return user, nil
+}

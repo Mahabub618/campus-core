@@ -179,3 +179,116 @@ func (s *TeacherService) GetTeacher(id uuid.UUID) (*response.UserResponse, error
 	}
 	return &resp, nil
 }
+
+// UpdateTeacher updates a teacher
+func (s *TeacherService) UpdateTeacher(id uuid.UUID, req *request.UpdateTeacherRequest, institutionID string) (*response.UserResponse, error) {
+	teacher, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access
+	if institutionID != "" && teacher.InstitutionID.String() != institutionID {
+		return nil, utils.ErrCrossTenantAccess
+	}
+
+	// Update user fields
+	if req.Email != "" && req.Email != teacher.User.Email {
+		// Check email uniqueness
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("email = ? AND id != ?", req.Email, teacher.User.ID).Count(&count).Error; err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if count > 0 {
+			return nil, utils.ErrEmailAlreadyExists
+		}
+		teacher.User.Email = req.Email
+	}
+
+	if req.Phone != "" {
+		teacher.User.Phone = req.Phone
+	}
+
+	if req.IsActive != nil {
+		teacher.User.IsActive = *req.IsActive
+	}
+
+	// Update profile fields
+	if teacher.User.Profile != nil {
+		if req.FirstName != "" {
+			teacher.User.Profile.FirstName = req.FirstName
+		}
+		if req.LastName != "" {
+			teacher.User.Profile.LastName = req.LastName
+		}
+	}
+
+	// Update teacher-specific fields
+	if req.Qualifications != nil {
+		teacher.Qualifications = pq.StringArray(req.Qualifications)
+	}
+
+	if req.DepartmentID != "" {
+		deptID, _ := uuid.Parse(req.DepartmentID)
+		teacher.DepartmentID = &deptID
+	}
+
+	// Save changes in transaction
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(teacher.User).Error; err != nil {
+			return err
+		}
+		if teacher.User.Profile != nil {
+			if err := tx.Save(teacher.User.Profile).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Save(teacher).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	resp := response.UserResponse{
+		ID:       teacher.User.ID,
+		Email:    teacher.User.Email,
+		Phone:    teacher.User.Phone,
+		Role:     teacher.User.Role,
+		IsActive: teacher.User.IsActive,
+		Profile: &response.ProfileResponse{
+			ID:            teacher.User.Profile.ID,
+			FirstName:     teacher.User.Profile.FirstName,
+			LastName:      teacher.User.Profile.LastName,
+			InstitutionID: teacher.User.Profile.InstitutionID,
+		},
+	}
+	return &resp, nil
+}
+
+// GetTeacherClasses gets a teacher's assigned classes
+func (s *TeacherService) GetTeacherClasses(id uuid.UUID) ([]interface{}, error) {
+	// Verify teacher exists
+	if _, err := s.repo.FindByID(id); err != nil {
+		return nil, err
+	}
+
+	// TODO: Implement when class_teacher_assignments table is available in Phase 3
+	// For now, return empty array
+	return []interface{}{}, nil
+}
+
+// GetTeacherSubjects gets a teacher's assigned subjects
+func (s *TeacherService) GetTeacherSubjects(id uuid.UUID) ([]interface{}, error) {
+	// Verify teacher exists
+	if _, err := s.repo.FindByID(id); err != nil {
+		return nil, err
+	}
+
+	// TODO: Implement when teacher_subject_assignments table is available in Phase 3
+	// For now, return empty array
+	return []interface{}{}, nil
+}

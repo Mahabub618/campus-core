@@ -24,7 +24,7 @@ type RateLimitConfig struct {
 // DefaultRateLimitConfig returns default rate limit config
 func DefaultRateLimitConfig() RateLimitConfig {
 	return RateLimitConfig{
-		Requests: 100,
+		Requests: 1000,
 		Duration: 1 * time.Minute,
 		KeyFunc:  defaultKeyFunc,
 	}
@@ -111,7 +111,7 @@ func RateLimit(config RateLimitConfig) gin.HandlerFunc {
 // StrictRateLimit returns a stricter rate limit for sensitive endpoints
 func StrictRateLimit() gin.HandlerFunc {
 	return RateLimit(RateLimitConfig{
-		Requests: 10,
+		Requests: 50,
 		Duration: 1 * time.Minute,
 		KeyFunc:  defaultKeyFunc,
 	})
@@ -120,7 +120,7 @@ func StrictRateLimit() gin.HandlerFunc {
 // AuthRateLimit returns rate limiting for auth endpoints (login, password reset)
 func AuthRateLimit() gin.HandlerFunc {
 	return RateLimit(RateLimitConfig{
-		Requests: 5,
+		Requests: 55,
 		Duration: 1 * time.Minute,
 		KeyFunc:  defaultKeyFunc,
 	})

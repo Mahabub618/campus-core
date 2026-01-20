@@ -168,3 +168,86 @@ func (s *AccountantService) GetAccountant(id uuid.UUID) (*response.UserResponse,
 	}
 	return &resp, nil
 }
+
+// UpdateAccountant updates an accountant
+func (s *AccountantService) UpdateAccountant(id uuid.UUID, req *request.UpdateAccountantRequest, institutionID string) (*response.UserResponse, error) {
+	accountant, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access
+	if institutionID != "" && accountant.InstitutionID.String() != institutionID {
+		return nil, utils.ErrCrossTenantAccess
+	}
+
+	// Update user fields
+	if req.Email != "" && req.Email != accountant.User.Email {
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("email = ? AND id != ?", req.Email, accountant.User.ID).Count(&count).Error; err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if count > 0 {
+			return nil, utils.ErrEmailAlreadyExists
+		}
+		accountant.User.Email = req.Email
+	}
+
+	if req.Phone != "" {
+		accountant.User.Phone = req.Phone
+	}
+
+	if req.IsActive != nil {
+		accountant.User.IsActive = *req.IsActive
+	}
+
+	// Update profile fields
+	if accountant.User.Profile != nil {
+		if req.FirstName != "" {
+			accountant.User.Profile.FirstName = req.FirstName
+		}
+		if req.LastName != "" {
+			accountant.User.Profile.LastName = req.LastName
+		}
+	}
+
+	// Update accountant-specific fields
+	if req.Qualification != "" {
+		accountant.Qualification = req.Qualification
+	}
+
+	// Save changes in transaction
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(accountant.User).Error; err != nil {
+			return err
+		}
+		if accountant.User.Profile != nil {
+			if err := tx.Save(accountant.User.Profile).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Save(accountant).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	resp := response.UserResponse{
+		ID:       accountant.User.ID,
+		Email:    accountant.User.Email,
+		Phone:    accountant.User.Phone,
+		Role:     accountant.User.Role,
+		IsActive: accountant.User.IsActive,
+		Profile: &response.ProfileResponse{
+			ID:            accountant.User.Profile.ID,
+			FirstName:     accountant.User.Profile.FirstName,
+			LastName:      accountant.User.Profile.LastName,
+			InstitutionID: accountant.User.Profile.InstitutionID,
+		},
+	}
+	return &resp, nil
+}

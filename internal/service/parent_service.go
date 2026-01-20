@@ -167,3 +167,133 @@ func (s *ParentService) GetParent(id uuid.UUID) (*response.UserResponse, error) 
 	}
 	return &resp, nil
 }
+
+// UpdateParent updates a parent
+func (s *ParentService) UpdateParent(id uuid.UUID, req *request.UpdateParentRequest, institutionID string) (*response.UserResponse, error) {
+	parent, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify tenant access
+	if institutionID != "" && parent.InstitutionID.String() != institutionID {
+		return nil, utils.ErrCrossTenantAccess
+	}
+
+	// Update user fields
+	if req.Email != "" && req.Email != parent.User.Email {
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("email = ? AND id != ?", req.Email, parent.User.ID).Count(&count).Error; err != nil {
+			return nil, utils.ErrInternalServer.Wrap(err)
+		}
+		if count > 0 {
+			return nil, utils.ErrEmailAlreadyExists
+		}
+		parent.User.Email = req.Email
+	}
+
+	if req.Phone != "" {
+		parent.User.Phone = req.Phone
+	}
+
+	if req.IsActive != nil {
+		parent.User.IsActive = *req.IsActive
+	}
+
+	// Update profile fields
+	if parent.User.Profile != nil {
+		if req.FirstName != "" {
+			parent.User.Profile.FirstName = req.FirstName
+		}
+		if req.LastName != "" {
+			parent.User.Profile.LastName = req.LastName
+		}
+	}
+
+	// Update parent-specific fields
+	if req.Occupation != "" {
+		parent.Occupation = req.Occupation
+	}
+
+	if req.OfficeAddress != "" {
+		parent.OfficeAddress = req.OfficeAddress
+	}
+
+	if req.EmergencyContact != "" {
+		parent.EmergencyContact = req.EmergencyContact
+	}
+
+	// Save changes in transaction
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(parent.User).Error; err != nil {
+			return err
+		}
+		if parent.User.Profile != nil {
+			if err := tx.Save(parent.User.Profile).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Save(parent).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	resp := response.UserResponse{
+		ID:       parent.User.ID,
+		Email:    parent.User.Email,
+		Phone:    parent.User.Phone,
+		Role:     parent.User.Role,
+		IsActive: parent.User.IsActive,
+		Profile: &response.ProfileResponse{
+			ID:            parent.User.Profile.ID,
+			FirstName:     parent.User.Profile.FirstName,
+			LastName:      parent.User.Profile.LastName,
+			InstitutionID: parent.User.Profile.InstitutionID,
+		},
+	}
+	return &resp, nil
+}
+
+// GetParentChildren gets a parent's linked children
+func (s *ParentService) GetParentChildren(id uuid.UUID) ([]response.ChildRelationResponse, error) {
+	parent, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load relations
+	var relations []models.ParentStudentRelation
+	if err := s.db.Preload("Student.User.Profile").Where("parent_id = ?", parent.ID).Find(&relations).Error; err != nil {
+		return nil, utils.ErrInternalServer.Wrap(err)
+	}
+
+	var responses []response.ChildRelationResponse
+	for _, rel := range relations {
+		if rel.Student != nil && rel.Student.User != nil {
+			responses = append(responses, response.ChildRelationResponse{
+				StudentID:    rel.StudentID,
+				Relationship: rel.Relationship,
+				IsPrimary:    rel.IsPrimary,
+				Student: response.UserResponse{
+					ID:       rel.Student.User.ID,
+					Email:    rel.Student.User.Email,
+					Phone:    rel.Student.User.Phone,
+					Role:     rel.Student.User.Role,
+					IsActive: rel.Student.User.IsActive,
+					Profile: &response.ProfileResponse{
+						ID:        rel.Student.User.Profile.ID,
+						FirstName: rel.Student.User.Profile.FirstName,
+						LastName:  rel.Student.User.Profile.LastName,
+					},
+				},
+			})
+		}
+	}
+
+	return responses, nil
+}

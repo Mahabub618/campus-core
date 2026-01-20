@@ -129,6 +129,59 @@ func (h *UserHandler) ToggleStatus(c *gin.Context) {
 	utils.OK(c, "User status updated", nil)
 }
 
+// UpdateUser updates a user
+func (h *UserHandler) UpdateUser(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	var req request.UpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	// Security: Check tenant access
+	currentInstID := middleware.GetInstitutionID(c)
+	creatorRole := middleware.GetUserRole(c)
+
+	user, err := h.service.UpdateUser(id, &req, creatorRole, currentInstID)
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "User updated successfully", user)
+}
+
+// DeleteUser soft deletes a user
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
+		return
+	}
+
+	// Get current user ID to prevent self-deletion
+	currentUserID, _ := middleware.GetUserID(c)
+	if currentUserID == id {
+		utils.Error(c, http.StatusBadRequest, utils.ErrCannotDeleteSelf)
+		return
+	}
+
+	currentInstID := middleware.GetInstitutionID(c)
+	creatorRole := middleware.GetUserRole(c)
+
+	if err := h.service.DeleteUser(id, creatorRole, currentInstID); err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "User deleted successfully", nil)
+}
+
 // GetProfile gets current user's profile
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	userID, exists := middleware.GetUserID(c)
@@ -170,4 +223,51 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	utils.OK(c, "Profile updated successfully", user)
+}
+
+// UpdateAvatar updates the current user's avatar
+func (h *UserHandler) UpdateAvatar(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		utils.Error(c, http.StatusUnauthorized, utils.ErrTokenMissing)
+		return
+	}
+
+	var req struct {
+		AvatarURL string `json:"avatar_url" binding:"required,url"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	user, err := h.service.UpdateAvatar(userID, req.AvatarURL)
+	if err != nil {
+		utils.Error(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.OK(c, "Avatar updated successfully", user)
+}
+
+// UpdatePassword updates the current user's password
+func (h *UserHandler) UpdatePassword(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		utils.Error(c, http.StatusUnauthorized, utils.ErrTokenMissing)
+		return
+	}
+
+	var req request.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, utils.FormatValidationErrors(err))
+		return
+	}
+
+	if err := h.service.UpdatePassword(userID, req.OldPassword, req.NewPassword); err != nil {
+		utils.Error(c, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.OK(c, "Password updated successfully", nil)
 }
