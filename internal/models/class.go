@@ -7,7 +7,7 @@ import (
 // Class represents a student class (e.g., Class 10)
 type Class struct {
 	BaseModel
-	TenantBaseModel
+	InstitutionID  uuid.UUID  `gorm:"type:uuid;not null;index" json:"institution_id"`
 	Name           string     `gorm:"size:50;not null" json:"name"`
 	SectionCount   int        `gorm:"default:1" json:"section_count"`
 	ClassTeacherID *uuid.UUID `gorm:"type:uuid" json:"class_teacher_id,omitempty"`
@@ -43,13 +43,13 @@ func (Section) TableName() string {
 // Subject represents an academic subject
 type Subject struct {
 	BaseModel
-	TenantBaseModel
-	ClassID     *uuid.UUID `gorm:"type:uuid" json:"class_id,omitempty"`
-	TeacherID   *uuid.UUID `gorm:"type:uuid" json:"teacher_id,omitempty"`
-	Name        string     `gorm:"size:100;not null" json:"name"`
-	Code        string     `gorm:"size:20" json:"code,omitempty"`
-	IsElective  bool       `gorm:"default:false" json:"is_elective"`
-	CreditHours float64    `gorm:"type:decimal(4,2)" json:"credit_hours,omitempty"`
+	InstitutionID uuid.UUID  `gorm:"type:uuid;not null;index" json:"institution_id"`
+	ClassID       *uuid.UUID `gorm:"type:uuid" json:"class_id,omitempty"`
+	TeacherID     *uuid.UUID `gorm:"type:uuid" json:"teacher_id,omitempty"`
+	Name          string     `gorm:"size:100;not null" json:"name"`
+	Code          string     `gorm:"size:20" json:"code,omitempty"`
+	IsElective    bool       `gorm:"default:false" json:"is_elective"`
+	CreditHours   float64    `gorm:"type:decimal(4,2)" json:"credit_hours,omitempty"`
 
 	// Relations
 	Class   *Class   `gorm:"foreignKey:ClassID" json:"class,omitempty"`

@@ -91,6 +91,7 @@ var (
 // Resource Errors (RES_xxx)
 var (
 	ErrResourceNotFound      = NewAppError("RES_001", "Resource not found", http.StatusNotFound)
+	ErrNotFound              = ErrResourceNotFound // Alias for convenience
 	ErrResourceExists        = NewAppError("RES_002", "Resource already exists", http.StatusConflict)
 	ErrDuplicateEntry        = NewAppError("RES_003", "Duplicate entry", http.StatusConflict)
 	ErrResourceInUse         = NewAppError("RES_004", "Resource is in use and cannot be deleted", http.StatusBadRequest)

@@ -76,6 +76,9 @@ func (r *Router) Setup() *gin.Engine {
 			r.setupInstitutionRoutes(protected)
 			r.setupUserRoutes(protected)
 			r.setupRoleRoutes(protected)
+
+			// Academic management routes
+			setupAcademicRoutes(protected, r.db)
 		}
 	}
 

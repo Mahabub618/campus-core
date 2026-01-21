@@ -27,12 +27,10 @@ func (s *Seeder) SeedDepartments() error {
 			s.db.Model(&models.Department{}).Where("institution_id = ? AND name = ?", inst.ID, name).Count(&count)
 			if count == 0 {
 				dept := &models.Department{
-					BaseModel: models.BaseModel{ID: uuid.New()},
-					TenantBaseModel: models.TenantBaseModel{
-						InstitutionID: inst.ID,
-					},
-					Name:        name,
-					Description: name + " Department",
+					BaseModel:     models.BaseModel{ID: uuid.New()},
+					InstitutionID: inst.ID,
+					Name:          name,
+					Description:   name + " Department",
 				}
 				if err := s.db.Create(dept).Error; err != nil {
 					return err
@@ -65,13 +63,11 @@ func (s *Seeder) SeedClasses() error {
 			if err != nil {
 				// Create class
 				class = models.Class{
-					BaseModel: models.BaseModel{ID: uuid.New()},
-					TenantBaseModel: models.TenantBaseModel{
-						InstitutionID: inst.ID,
-					},
-					Name:         className,
-					SectionCount: 2,
-					Capacity:     50,
+					BaseModel:     models.BaseModel{ID: uuid.New()},
+					InstitutionID: inst.ID,
+					Name:          className,
+					SectionCount:  2,
+					Capacity:      50,
 				}
 				if err := s.db.Create(&class).Error; err != nil {
 					return err
@@ -138,15 +134,13 @@ func (s *Seeder) createSubjectIfNotExists(classID uuid.UUID, institutionID uuid.
 	s.db.Model(&models.Subject{}).Where("class_id = ? AND name = ?", classID, name).Count(&count)
 	if count == 0 {
 		subject := &models.Subject{
-			BaseModel: models.BaseModel{ID: uuid.New()},
-			TenantBaseModel: models.TenantBaseModel{
-				InstitutionID: institutionID,
-			},
-			ClassID:     &classID,
-			Name:        name,
-			Code:        name[0:3] + "-101", // Dummy code
-			IsElective:  isElective,
-			CreditHours: 3.0,
+			BaseModel:     models.BaseModel{ID: uuid.New()},
+			InstitutionID: institutionID,
+			ClassID:       &classID,
+			Name:          name,
+			Code:          name[0:3] + "-101", // Dummy code
+			IsElective:    isElective,
+			CreditHours:   3.0,
 		}
 		s.db.Create(subject)
 		logger.Info("Subject seeded", zap.String("name", name), zap.String("class_id", classID.String()))
