@@ -191,7 +191,7 @@ func (h *ClassHandler) GetTeachers(c *gin.Context) {
 
 // CreateSection handles creating a new section for a class
 func (h *ClassHandler) CreateSection(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("classId"))
+	classID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
 		return
@@ -220,7 +220,7 @@ func (h *ClassHandler) CreateSection(c *gin.Context) {
 
 // GetSections handles getting all sections for a class
 func (h *ClassHandler) GetSections(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("classId"))
+	classID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		utils.Error(c, http.StatusBadRequest, utils.ErrInvalidUUID)
 		return

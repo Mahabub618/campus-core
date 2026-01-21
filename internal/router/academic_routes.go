@@ -66,7 +66,7 @@ func setupAcademicRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	}
 
 	// Sections routes (nested under classes)
-	sections := rg.Group("/classes/:classId/sections")
+	sections := rg.Group("/classes/:id/sections")
 	{
 		sections.GET("", classHandler.GetSections)
 		sections.POST("", middleware.RequireAdmin(), classHandler.CreateSection)
