@@ -59,19 +59,23 @@ deps: ## Install dependencies
 migrate-create: ## Create a new migration file. Usage: make migrate-create NAME=init_schema
 	@if [ -z "$(NAME)" ]; then echo "Error: NAME is undefined. Usage: make migrate-create NAME=init_schema"; exit 1; fi
 	@echo "Creating migration $(NAME)..."
+	@command -v migrate >/dev/null 2>&1 || (echo "migrate not found, installing..."; go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 	migrate create -ext sql -dir $(MIGRATION_DIR) -seq $(NAME)
 
 migrate-up: ## Run migrations up
 	@echo "Running migrations up..."
+	@command -v migrate >/dev/null 2>&1 || (echo "migrate not found, installing..."; go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 	migrate -path $(MIGRATION_DIR) -database "$(DB_URL)" up
 
 migrate-down: ## Run migrations down
 	@echo "Running migrations down..."
+	@command -v migrate >/dev/null 2>&1 || (echo "migrate not found, installing..."; go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 	migrate -path $(MIGRATION_DIR) -database "$(DB_URL)" down
 
 migrate-force: ## Force migration version. Usage: make migrate-force VERSION=1
 	@if [ -z "$(VERSION)" ]; then echo "Error: VERSION is undefined. Usage: make migrate-force VERSION=1"; exit 1; fi
 	@echo "Forcing migration version $(VERSION)..."
+	@command -v migrate >/dev/null 2>&1 || (echo "migrate not found, installing..."; go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 	migrate -path $(MIGRATION_DIR) -database "$(DB_URL)" force $(VERSION)
 
 docker-build: ## Build Docker image
